@@ -4,4 +4,4 @@
 
 ## Features
 
-* BulkInsert
+* [BulkInsert](docs/BulkInsert.md)
