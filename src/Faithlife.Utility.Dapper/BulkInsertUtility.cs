@@ -15,6 +15,7 @@ namespace Faithlife.Utility.Dapper
 	/// <summary>
 	/// Methods for bulk insert with Dapper.
 	/// </summary>
+	/// <remarks>https://github.com/Faithlife/DapperUtility/blob/master/docs/BulkInsert.md</remarks>
 	public static class BulkInsertUtility
 	{
 		/// <summary>
