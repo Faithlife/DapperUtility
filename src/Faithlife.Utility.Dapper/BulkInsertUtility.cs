@@ -4,6 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -167,7 +168,7 @@ namespace Faithlife.Utility.Dapper
 			}
 		}
 
-		// cache property list for each anonymous type
+		// cache property names and getters for each type
 		private static class ParamExtractor<T>
 		{
 			public static string[] GetNames() => s_names;
@@ -185,16 +186,40 @@ namespace Faithlife.Utility.Dapper
 
 			static ParamExtractor()
 			{
-				var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
-				int count = properties.Length;
-				s_names = new string[count];
-				s_getters = new Func<T, object>[count];
-				for (int index = 0; index < count; index++)
+				var names = new List<string>();
+				var getters = new List<Func<T, object>>();
+				foreach (var property in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public))
 				{
-					var property = properties[index];
-					s_names[index] = property.Name;
-					s_getters[index] = x => property.GetValue(x);
+					var getter = TryCreateGetter(property);
+					if (getter != null)
+					{
+						names.Add(property.Name);
+						getters.Add(getter);
+					}
 				}
+				s_names = names.ToArray();
+				s_getters = getters.ToArray();
+			}
+
+			private static Func<T, object> TryCreateGetter(PropertyInfo property)
+			{
+				var getMethod = property.GetGetMethod();
+				var ownerType = property.DeclaringType;
+				if (getMethod == null || ownerType == null)
+					return null;
+
+				var dynamicGetMethod = new DynamicMethod(name: $"_Get{property.Name}_",
+					returnType: typeof(T), parameterTypes: new Type[] { typeof(object) }, owner: ownerType);
+				var generator = dynamicGetMethod.GetILGenerator();
+				generator.DeclareLocal(typeof(object));
+				generator.Emit(OpCodes.Ldarg_0);
+				generator.Emit(OpCodes.Castclass, ownerType);
+				generator.EmitCall(OpCodes.Callvirt, getMethod, null);
+				if (!property.PropertyType.IsClass)
+					generator.Emit(OpCodes.Box, property.PropertyType);
+				generator.Emit(OpCodes.Ret);
+
+				return (Func<T, object>) dynamicGetMethod.CreateDelegate(typeof(Func<T, object>));
 			}
 
 			static readonly string[] s_names;
