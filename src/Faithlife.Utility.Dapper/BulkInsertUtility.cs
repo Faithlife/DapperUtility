@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -192,25 +191,20 @@ namespace Faithlife.Utility.Dapper
 			static readonly PropertyInfo[] s_properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
 		}
 
-		private static IEnumerable<ReadOnlyCollection<T>> EnumerateBatches<T>(IEnumerable<T> items, int batchSize)
+		private static IEnumerable<IReadOnlyList<T>> EnumerateBatches<T>(IEnumerable<T> items, int batchSize)
 		{
-			if (items == null)
-				throw new ArgumentNullException(nameof(items));
-			if (batchSize < 1)
-				throw new ArgumentOutOfRangeException(nameof(batchSize));
-
-			var itemsAsList = items as IList<T>;
+			var itemsAsList = items as IReadOnlyList<T>;
 			if (itemsAsList != null)
 			{
 				int count = itemsAsList.Count;
 				if (count <= batchSize)
-					return count != 0 ? new[] { new ReadOnlyCollection<T>(itemsAsList) } : Enumerable.Empty<ReadOnlyCollection<T>>();
+					return count != 0 ? new[] { itemsAsList } : Enumerable.Empty<IReadOnlyList<T>>();
 			}
 
 			return YieldBatches(items, batchSize);
 		}
 
-		private static IEnumerable<ReadOnlyCollection<T>> YieldBatches<T>(IEnumerable<T> items, int batchSize)
+		private static IEnumerable<IReadOnlyList<T>> YieldBatches<T>(IEnumerable<T> items, int batchSize)
 		{
 			var batch = new List<T>(batchSize);
 
@@ -220,13 +214,13 @@ namespace Faithlife.Utility.Dapper
 
 				if (batch.Count == batchSize)
 				{
-					yield return batch.AsReadOnly();
+					yield return batch;
 					batch = new List<T>(batchSize);
 				}
 			}
 
 			if (batch.Count != 0)
-				yield return batch.AsReadOnly();
+				yield return batch;
 		}
 
 		static readonly Regex s_valuesClauseRegex = new Regex(
