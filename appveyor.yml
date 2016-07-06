@@ -1,5 +1,4 @@
 version: '{build}'
-before_build:
-- cmd: nuget restore
-build:
-  verbosity: minimal
+build_script:
+- ps: ./build.ps1
+test: off
