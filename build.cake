@@ -1,42 +1,32 @@
-#addin "Cake.Git"
+#addin "nuget:?package=Cake.Git"
+#addin "nuget:?package=Octokit"
 #tool "nuget:?package=gitlink"
 #tool "nuget:?package=NUnit.ConsoleRunner"
-#r "System.Net.Http"
-
-using System.Diagnostics;
-using System.Net.Http;
-using System.Net.Http.Headers;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
-var nugetSource = Argument("nugetSource", "https://www.nuget.org/api/v2/package");
 var nugetApiKey = Argument("nugetApiKey", "");
 var githubApiKey = Argument("githubApiKey", "");
 
 var solutionPath = "./DapperUtility.sln";
 var nugetPackageName = "Faithlife.Utility.Dapper";
 var assemblyPath = $"./src/Faithlife.Utility.Dapper/bin/{configuration}/Faithlife.Utility.Dapper.dll";
-var githubApiUri = "https://api.github.com";
+var nugetSource = "https://www.nuget.org/api/v2/package";
 var githubRawUri = "http://raw.githubusercontent.com";
 var githubOwner = "Faithlife";
 var githubRepo = "DapperUtility";
 
-var httpClient = new HttpClient();
-httpClient.DefaultRequestHeaders.Add("User-Agent", "build.cake");
+var githubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("build.cake"));
+if (!string.IsNullOrEmpty(githubApiKey))
+	githubClient.Credentials = new Octokit.Credentials(githubApiKey);
 
 string headSha = null;
 string version = null;
 
 string GetSemVerFromFile(string path)
 {
-	var versionInfo = FileVersionInfo.GetVersionInfo(path);
+	var versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(path);
 	return $"{versionInfo.FileMajorPart}.{versionInfo.FileMinorPart}.{versionInfo.FileBuildPart}";
-}
-
-void VerifyHttpResponse(HttpResponseMessage httpResponse, string description)
-{
-	if (!httpResponse.IsSuccessStatusCode)
-		throw new InvalidOperationException($"{description} failed with {httpResponse.StatusCode}: {httpResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult()}");
 }
 
 Task("Clean")
@@ -68,8 +58,14 @@ Task("SourceIndex")
 		headSha = GitLogTip(Directory(".")).Sha;
 		version = GetSemVerFromFile(assemblyPath);
 
-		var httpResponse = httpClient.GetAsync($"{githubApiUri}/repos/{githubOwner}/{githubRepo}/commits/{headSha}").GetAwaiter().GetResult();
-		VerifyHttpResponse(httpResponse, $"Finding current commit {headSha} at GitHub");
+		try
+		{
+			githubClient.Repository.Commit.GetSha1(githubOwner, githubRepo, headSha).GetAwaiter().GetResult();
+		}
+		catch (Octokit.NotFoundException exception)
+		{
+			throw new InvalidOperationException($"The current commit '{headSha}' must be pushed to GitHub.", exception);
+		}
 
 		GitLink(MakeAbsolute(Directory(".")).FullPath, new GitLinkSettings
 		{
@@ -109,11 +105,8 @@ Task("NuGetTagOnly")
 	{
 		var tagName = $"nuget-{version}";
 		Information($"Creating git tag '{tagName}'...");
-		var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{githubApiUri}/repos/{githubOwner}/{githubRepo}/git/refs");
-		httpRequest.Headers.Authorization = AuthenticationHeaderValue.Parse($"token {githubApiKey}");
-		httpRequest.Content = new StringContent($"{{\"ref\":\"refs/tags/{tagName}\",\"sha\":\"{headSha}\"}}", Encoding.UTF8, "application/json");
-		var httpResponse = httpClient.SendAsync(httpRequest).GetAwaiter().GetResult();
-		VerifyHttpResponse(httpResponse, $"GitHub tag creation at {headSha}");
+		githubClient.Git.Reference.Create(githubOwner, githubRepo,
+			new Octokit.NewReference($"refs/tags/{tagName}", headSha)).GetAwaiter().GetResult();
 	});
 
 Task("NuGetPublish")
