@@ -170,26 +170,35 @@ namespace Faithlife.Utility.Dapper
 		// cache property list for each anonymous type
 		private static class ParamExtractor<T>
 		{
-			public static string[] GetNames()
-			{
-				var names = new string[s_properties.Length];
-				for (int index = 0; index < names.Length; index++)
-					names[index] = s_properties[index].Name;
-				return names;
-			}
+			public static string[] GetNames() => s_names;
 
 			public static object[] GetValues(T param)
 			{
-				var values = new object[s_properties.Length];
+				var values = new object[s_getters.Length];
 				if (param != null)
 				{
 					for (int index = 0; index < values.Length; index++)
-						values[index] = s_properties[index].GetValue(param);
+						values[index] = s_getters[index](param);
 				}
 				return values;
 			}
 
-			static readonly PropertyInfo[] s_properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+			static ParamExtractor()
+			{
+				var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+				int count = properties.Length;
+				s_names = new string[count];
+				s_getters = new Func<T, object>[count];
+				for (int index = 0; index < count; index++)
+				{
+					var property = properties[index];
+					s_names[index] = property.Name;
+					s_getters[index] = x => property.GetValue(x);
+				}
+			}
+
+			static readonly string[] s_names;
+			static readonly Func<T, object>[] s_getters;
 		}
 
 		private static IEnumerable<IReadOnlyList<T>> EnumerateBatches<T>(IEnumerable<T> items, int batchSize)
