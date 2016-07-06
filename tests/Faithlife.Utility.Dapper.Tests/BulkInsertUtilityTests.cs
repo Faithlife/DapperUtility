@@ -27,6 +27,15 @@ namespace Faithlife.Utility.Dapper.Tests
 		}
 
 		[Test]
+		public void NullInsertParams_Throws()
+		{
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				BulkInsertUtility.GetBulkInsertCommands("VALUES (@foo)...", default(object[]));
+			});
+		}
+
+		[Test]
 		public void NoValues_Throws()
 		{
 			Assert.Throws<ArgumentException>(() =>

@@ -71,6 +71,8 @@ namespace Faithlife.Utility.Dapper
 		{
 			if (sql == null)
 				throw new ArgumentNullException(nameof(sql));
+			if (insertParams == null)
+				throw new ArgumentNullException(nameof(insertParams));
 			if (batchSize < 1)
 				throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be positive.");
 
