@@ -71,6 +71,8 @@ namespace Faithlife.Utility.Dapper
 		{
 			if (sql == null)
 				throw new ArgumentNullException(nameof(sql));
+			if (batchSize < 1)
+				throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be positive.");
 
 			// find VALUES clause
 			var valuesClauseMatches = s_valuesClauseRegex.Matches(sql);

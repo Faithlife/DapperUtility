@@ -63,6 +63,15 @@ namespace Faithlife.Utility.Dapper.Tests
 		}
 
 		[Test]
+		public void NegativeBatchSize_Throws()
+		{
+			Assert.Throws<ArgumentOutOfRangeException>(() =>
+			{
+				BulkInsertUtility.GetBulkInsertCommands("VALUES (@foo)...", new[] { new { foo = 1 } }, batchSize: -1);
+			});
+		}
+
+		[Test]
 		public void MinimalInsert()
 		{
 			var commands = BulkInsertUtility.GetBulkInsertCommands("INSERT INTO t (foo)VALUES(@foo)...;", new[] { new { foo = 1 } }).ToList();
