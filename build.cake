@@ -1,7 +1,10 @@
 #addin "nuget:?package=Cake.Git"
 #addin "nuget:?package=Octokit"
+#tool "nuget:?package=coveralls.io"
 #tool "nuget:?package=gitlink"
-#tool "nuget:?package=NUnit.ConsoleRunner"
+#tool "nuget:?package=OpenCover"
+#tool "nuget:?package=ReportGenerator"
+#tool "nuget:?package=xunit.runner.console"
 
 using LibGit2Sharp;
 
@@ -9,6 +12,7 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var nugetApiKey = Argument("nugetApiKey", "");
 var githubApiKey = Argument("githubApiKey", "");
+var coverallsApiKey = Argument("coverallsApiKey", "");
 
 var solutionPath = "./DapperUtility.sln";
 var nugetPackageName = "Faithlife.Utility.Dapper";
@@ -52,7 +56,7 @@ Task("Build")
 
 Task("Test")
 	.IsDependentOn("Build")
-	.Does(() => NUnit3($"./tests/**/bin/{configuration}/*.Tests.dll", new NUnit3Settings { NoResults = true }));
+	.Does(() => XUnit2($"./tests/**/bin/{configuration}/*.Tests.dll"));
 
 Task("SourceIndex")
 	.IsDependentOn("Test")
@@ -120,6 +124,34 @@ Task("NuGetTagOnly")
 Task("NuGetPublish")
 	.IsDependentOn("NuGetPublishOnly")
 	.IsDependentOn("NuGetTagOnly");
+
+Task("Coverage")
+	.IsDependentOn("Build")
+	.Does(() =>
+	{
+		CreateDirectory("./build");
+		if (FileExists("./build/coverage.xml"))
+			DeleteFile("./build/coverage.xml");
+		foreach (var testDllPath in GetFiles($"./tests/**/bin/{configuration}/*.Tests.dll"))
+		{
+			StartProcess(@"tools\OpenCover\tools\OpenCover.Console.exe",
+				$@"-register:user -mergeoutput ""-target:tools\xunit.runner.console\tools\xunit.console.exe"" ""-targetargs:{testDllPath} -noshadow"" ""-output:build\coverage.xml"" -skipautoprops -returntargetcode ""-filter:+[Faithlife*]*""");
+		}
+	});
+
+Task("CoverageReport")
+	.IsDependentOn("Coverage")
+	.Does(() =>
+	{
+		StartProcess(@"tools\ReportGenerator\tools\ReportGenerator.exe", $@"""-reports:build\coverage.xml"" ""-targetdir:build\coverage""");
+	});
+
+Task("CoveragePublish")
+	.IsDependentOn("Coverage")
+	.Does(() =>
+	{
+		StartProcess(@"tools\coveralls.io\tools\coveralls.net.exe", $@"--opencover ""build\coverage.xml"" --full-sources --repo-token {coverallsApiKey}");
+	});
 
 Task("Default")
 	.IsDependentOn("Test");
