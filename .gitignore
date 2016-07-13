@@ -4,7 +4,8 @@ build/
 obj/
 
 # ignore downloaded tools
-tools/
+tools/*
+!tools/packages.config
 
 # ignore user-specific options/cache files
 packages/

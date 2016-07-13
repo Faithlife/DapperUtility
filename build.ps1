@@ -9,32 +9,23 @@ Param(
     [string[]]$ScriptArgs
 )
 
-# create tools directory
-$ToolsDirPath = Join-Path $PSScriptRoot "tools"
-New-Item -Path $ToolsDirPath -Type Directory -ErrorAction SilentlyContinue | Out-Null
-
 # download nuget.exe if not in path and not already downloaded
+$ToolsDirPath = Join-Path $PSScriptRoot "tools"
 $NuGetExe = Get-Command "nuget.exe" -ErrorAction SilentlyContinue
-if ($NuGetExe -ne $null) {
+If ($NuGetExe -ne $null) {
     $NuGetExePath = $NuGetExe.Path
 }
 Else {
     $NuGetExePath = Join-Path $ToolsDirPath "nuget.exe"
-    if (!(Test-Path $NuGetExePath)) {
+    If (!(Test-Path $NuGetExePath)) {
         Invoke-WebRequest -Uri http://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile $NuGetExePath
     }
 }
 
-# download packages.config if necessary
-$PackagesConfigPath = Join-Path $ToolsDirPath "packages.config"
-if (!(Test-Path $PackagesConfigPath)) {
-    Invoke-WebRequest -Uri http://cakebuild.net/download/bootstrapper/packages -OutFile $PackagesConfigPath
-}
-
-# download Cake via NuGet and packages.config
+# use NuGet to download Cake
 Push-Location $ToolsDirPath
 Invoke-Expression "&`"$NuGetExePath`" install -ExcludeVersion -OutputDirectory `"$ToolsDirPath`""
-if ($LASTEXITCODE -ne 0) {
+If ($LASTEXITCODE -ne 0) {
     Throw "An error occured while restoring NuGet tools."
 }
 Pop-Location
@@ -42,4 +33,4 @@ Pop-Location
 # run Cake with specified arguments
 $CakeExePath = Join-Path $ToolsDirPath "Cake/Cake.exe"
 Invoke-Expression "& `"$CakeExePath`" -experimental $ScriptArgs"
-exit $LASTEXITCODE
+Exit $LASTEXITCODE
