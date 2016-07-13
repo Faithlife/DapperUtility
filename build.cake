@@ -135,7 +135,7 @@ Task("Coverage")
 		foreach (var testDllPath in GetFiles($"./tests/**/bin/{configuration}/*.Tests.dll"))
 		{
 			StartProcess(@"tools\OpenCover\tools\OpenCover.Console.exe",
-				$@"-register:user -mergeoutput ""-target:tools\xunit.runner.console\tools\xunit.console.exe"" ""-targetargs:{testDllPath} -noshadow"" ""-output:build\coverage.xml"" -skipautoprops -returntargetcode ""-filter:+[Faithlife*]*""");
+				$@"-register:user -mergeoutput ""-target:tools\NUnit.ConsoleRunner\tools\nunit3-console.exe"" ""-targetargs:{testDllPath} --noxml"" ""-output:build\coverage.xml"" -skipautoprops -returntargetcode ""-filter:+[Faithlife*]*""");
 		}
 	});
 
