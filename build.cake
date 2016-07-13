@@ -56,7 +56,7 @@ Task("Build")
 
 Task("Test")
 	.IsDependentOn("Build")
-	.Does(() => XUnit2($"./tests/**/bin/{configuration}/*.Tests.dll"));
+	.Does(() => NUnit3($"./tests/**/bin/{configuration}/*.Tests.dll", new NUnit3Settings { NoResults = true }));
 
 Task("SourceIndex")
 	.IsDependentOn("Test")
