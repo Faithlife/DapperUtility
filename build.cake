@@ -2,9 +2,9 @@
 #addin "nuget:?package=Octokit"
 #tool "nuget:?package=coveralls.io"
 #tool "nuget:?package=gitlink"
+#tool "nuget:?package=NUnit.ConsoleRunner"
 #tool "nuget:?package=OpenCover"
 #tool "nuget:?package=ReportGenerator"
-#tool "nuget:?package=xunit.runner.console"
 
 using LibGit2Sharp;
 
@@ -135,7 +135,7 @@ Task("Coverage")
 		foreach (var testDllPath in GetFiles($"./tests/**/bin/{configuration}/*.Tests.dll"))
 		{
 			StartProcess(@"tools\OpenCover\tools\OpenCover.Console.exe",
-				$@"-register:user -mergeoutput ""-target:tools\NUnit.ConsoleRunner\tools\nunit3-console.exe"" ""-targetargs:{testDllPath} --noxml"" ""-output:build\coverage.xml"" -skipautoprops -returntargetcode ""-filter:+[Faithlife*]*""");
+				$@"-register:user -mergeoutput ""-target:tools\NUnit.ConsoleRunner\tools\nunit3-console.exe"" ""-targetargs:{testDllPath} --noresult"" ""-output:build\coverage.xml"" -skipautoprops -returntargetcode ""-filter:+[Faithlife*]*""");
 		}
 	});
 
