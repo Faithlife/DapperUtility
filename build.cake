@@ -80,6 +80,7 @@ Task("SourceIndex")
 		GitLink(MakeAbsolute(Directory(".")).FullPath, new GitLinkSettings
 		{
 			RepositoryUrl = $"{githubRawUri}/{githubOwner}/{githubRepo}",
+			SolutionFileName = MakeAbsolute(File(solutionPath)).FullPath,
 		});
 
 		version = GetSemVerFromFile(assemblyPath);
