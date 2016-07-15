@@ -215,7 +215,7 @@ namespace Faithlife.Utility.Dapper
 				generator.Emit(OpCodes.Ldarg_0);
 				generator.Emit(OpCodes.Castclass, ownerType);
 				generator.EmitCall(OpCodes.Callvirt, getMethod, null);
-				if (!property.PropertyType.IsClass)
+				if (!property.PropertyType.GetTypeInfo().IsClass)
 					generator.Emit(OpCodes.Box, property.PropertyType);
 				generator.Emit(OpCodes.Ret);
 
