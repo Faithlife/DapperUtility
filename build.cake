@@ -115,11 +115,14 @@ Task("NuGetPackage")
 	.IsDependentOn("DotNetTest")
 	.Does(() =>
 	{
+		if (configuration != "Release")
+			throw new InvalidOperationException("Configuration should be Release.");
+
 		CreateDirectory("./build/nuget");
 		CleanDirectory("./build/nuget");
 
 		foreach (var projectFile in GetFiles("./src/**/project.json"))
-			StartProcess("dotnet", $"pack \"{projectFile.FullPath}\" --no-build --output build/nuget");
+			StartProcess("dotnet", $"pack \"{projectFile.FullPath}\" --configuration {configuration} --no-build --output build/nuget");
 	});
 
 Task("NuGetPublish")
@@ -162,10 +165,9 @@ Task("NuGetPublish")
 			});
 		}
 
-		var tagName = $"nuget-{packageVersion}";
-		Information($"Creating git tag '{tagName}'...");
+		Information($"Creating git tag '{packageVersion}'...");
 		githubClient.Git.Reference.Create(githubOwner, githubRepo,
-			new Octokit.NewReference($"refs/tags/{tagName}", headSha)).GetAwaiter().GetResult();
+			new Octokit.NewReference($"refs/tags/{packageVersion}", headSha)).GetAwaiter().GetResult();
 	});
 
 Task("Default")
