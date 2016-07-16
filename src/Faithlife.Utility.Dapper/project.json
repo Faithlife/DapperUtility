@@ -1,0 +1,31 @@
+{
+  "name": "Faithlife.Utility.Dapper",
+  "version": "1.0.0-rc1",
+  "title": "Faithlife.Utility.Dapper",
+  "description": "A utility library for Dapper.",
+  "copyright": "Copyright 2016 Faithlife Corporation",
+  "authors": [ "Faithlife Corporation" ],
+  "packOptions": {
+    "owners": [ "Faithlife" ],
+    "tags": [ "Dapper" ],
+    "releaseNotes": "Support .NET Core.",
+    "projectUrl": "https://github.com/Faithlife/DapperUtility",
+    "licenseUrl": "https://raw.githubusercontent.com/Faithlife/DapperUtility/master/COPYING",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Faithlife/DapperUtility.git"
+    }
+  },
+  "buildOptions": {
+    "debugType": "portable",
+    "warningsAsErrors": true,
+    "xmlDoc": true
+  },
+  "dependencies": {
+    "Dapper": "1.50.1"
+  },
+  "frameworks": {
+    "net45": {},
+    "netstandard1.3": {}
+  }
+}

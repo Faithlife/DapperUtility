@@ -4,8 +4,7 @@ build/
 obj/
 
 # ignore downloaded tools
-tools/*
-!tools/packages.config
+tools
 
 # ignore user-specific options/cache files
 packages/
@@ -32,3 +31,7 @@ AppPackages/
 *.crunchsolution.cache
 *.crunchsolution.user
 _NCrunch_*
+.vs
+*.lock.json
+*.lock.dotnet
+TestResult.xml
