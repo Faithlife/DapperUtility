@@ -9,9 +9,9 @@ using LibGit2Sharp;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
-var nugetApiKey = Argument("nugetApiKey", "");
-var githubApiKey = Argument("githubApiKey", "");
-var coverallsApiKey = Argument("coverallsApiKey", "");
+var nugetApiKey = Argument("nugetApiKey", default(string));
+var githubApiKey = Argument("githubApiKey", default(string));
+var coverallsApiKey = Argument("coverallsApiKey", default(string));
 
 var githubOwner = "Faithlife";
 var githubRepo = "DapperUtility";
@@ -84,10 +84,13 @@ Task("CoveragePublish")
 	.IsDependentOn("Coverage")
 	.Does(() =>
 	{
-		if (string.IsNullOrWhiteSpace(coverallsApiKey))
+		if (coverallsApiKey == null)
 			throw new InvalidOperationException("Requires -coverallsApiKey=(key)");
 
-		StartProcess(@"tools\coveralls.io\tools\coveralls.net.exe", $@"--opencover ""build\coverage\coverage.xml"" --full-sources --repo-token {coverallsApiKey}");
+		if (coverallsApiKey.Length != 0)
+			StartProcess(@"tools\coveralls.io\tools\coveralls.net.exe", $@"--opencover ""build\coverage\coverage.xml"" --full-sources --repo-token {coverallsApiKey}");
+		else
+			Information("coverallsApiKey is blank; skipping publish.");
 	});
 
 Task("DotNetBuild")
