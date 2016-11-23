@@ -1,37 +1,15 @@
-# ignore output folders
+.vs/
 bin/
-build/
+cake/
 obj/
-
-# ignore downloaded tools
-tools
-
-# ignore user-specific options/cache files
 packages/
-_ReSharper.*
-Thumbs.db
-*.csproj.user
-*.DotSettings.user
-*.nupkg
-*.opensdf
-*.[Rr]e[Ss]harper.user
-*.sdf
-*.sln.cache
-*.suo
-*.vcxproj.user
-*.tmp
-*.pidb
-StyleCop.Cache
-*.userprefs
-AppPackages/
-.DS_Store
+release/
+
+*.cache
 *.ncrunchproject
 *.ncrunchsolution
-*.ncrunchsolution.user
-*.crunchsolution.cache
-*.crunchsolution.user
-_NCrunch_*
-.vs
+*.suo
+*.user
 *.lock.json
 *.lock.dotnet
 TestResult.xml

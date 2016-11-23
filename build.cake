@@ -1,23 +1,24 @@
-#addin "nuget:?package=Cake.Git"
-#addin "nuget:?package=Octokit"
-#tool "nuget:?package=coveralls.io"
-#tool "nuget:?package=NUnit.ConsoleRunner"
-#tool "nuget:?package=OpenCover"
-#tool "nuget:?package=ReportGenerator"
+#addin "nuget:https://www.nuget.org/api/v2/?package=Cake.Git&version=0.10.0"
+#addin "nuget:https://www.nuget.org/api/v2/?package=Octokit&version=0.23.0"
+#tool "nuget:https://www.nuget.org/api/v2/?package=coveralls.io&version=1.3.4"
+#tool "nuget:https://www.nuget.org/api/v2/?package=NUnit.ConsoleRunner&version=3.5.0"
+#tool "nuget:https://www.nuget.org/api/v2/?package=OpenCover&version=4.6.519"
+#tool "nuget:https://www.nuget.org/api/v2/?package=ReportGenerator&version=2.5.0"
 
 using LibGit2Sharp;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
-var nugetApiKey = Argument("nugetApiKey", default(string));
-var githubApiKey = Argument("githubApiKey", default(string));
-var coverallsApiKey = Argument("coverallsApiKey", default(string));
+var nugetApiKey = Argument("nugetApiKey", "");
+var githubApiKey = Argument("githubApiKey", "");
+var coverallsApiKey = Argument("coverallsApiKey", "");
 
+var solutionFileName = "DapperUtility.sln";
 var githubOwner = "Faithlife";
 var githubRepo = "DapperUtility";
-
-var nugetSource = "https://www.nuget.org/api/v2/package";
 var githubRawUri = "http://raw.githubusercontent.com";
+var nugetSource = "https://www.nuget.org/api/v2/package";
+var coverageAssemblies = new[] { "Faithlife.Utility.Dapper" };
 
 var dotnetFileNames = new HashSet<string> { "global.json", "project.json", "project.lock.json" };
 
@@ -30,46 +31,45 @@ if (!string.IsNullOrWhiteSpace(githubApiKey))
 Task("Clean")
 	.Does(() =>
 	{
-		CleanDirectories($"./src/**/bin/{configuration}");
-		CleanDirectories($"./src/**/obj/{configuration}");
-		CleanDirectories($"./tests/**/bin/{configuration}");
-		CleanDirectories($"./tests/**/obj/{configuration}");
+		CleanDirectories($"src/**/bin");
+		CleanDirectories($"src/**/obj");
+		CleanDirectories($"tests/**/bin");
+		CleanDirectories($"tests/**/obj");
+		CleanDirectories("release");
 	});
 
 Task("MSBuild")
 	.IsDependentOn("Clean")
 	.Does(() =>
 	{
-		var solutionFiles = GetFiles("./*.sln");
-		if (solutionFiles.Count != 1)
-			throw new InvalidOperationException($"{solutionFiles.Count} .sln files found.");
-		var solutionFile = solutionFiles.Single();
-
-		foreach (var dotnetFile in GetFiles("./**/*.json").Where(x => dotnetFileNames.Contains(x.Segments.Last())))
+		foreach (var dotnetFile in GetFiles("**/*.json").Where(x => dotnetFileNames.Contains(x.Segments.Last())))
 			System.IO.File.Move(dotnetFile.FullPath, dotnetFile.ChangeExtension(".dotnet").FullPath);
 
-		NuGetRestore(solutionFile);
-		MSBuild(solutionFile, settings => settings.SetConfiguration(configuration));
+		NuGetRestore(solutionFileName);
+		MSBuild(solutionFileName, settings => settings.SetConfiguration(configuration));
 	});
 
 Task("MSTest")
 	.IsDependentOn("MSBuild")
 	.Does(() =>
 	{
-		NUnit3($"./tests/**/bin/{configuration}/*.Tests.dll", new NUnit3Settings { NoResults = true });
+		NUnit3($"tests/**/bin/**/*.Tests.dll", new NUnit3Settings { NoResults = true });
 	});
 
 Task("Coverage")
 	.IsDependentOn("MSBuild")
 	.Does(() =>
 	{
-		CreateDirectory("./build/coverage");
-		CleanDirectory("./build/coverage");
+		CreateDirectory("release");
+		if (FileExists("release/coverage.xml"))
+			DeleteFile("release/coverage.xml");
 
-		foreach (var testDllPath in GetFiles($"./tests/**/bin/{configuration}/*.Tests.dll"))
+		string filter = string.Concat(coverageAssemblies.Select(x => $@" ""-filter:+[{x}]*"""));
+
+		foreach (var testDllPath in GetFiles($"./tests/**/bin/**/*.Tests.dll"))
 		{
-			StartProcess(@"tools\OpenCover\tools\OpenCover.Console.exe",
-				$@"-register:user -mergeoutput ""-target:tools\NUnit.ConsoleRunner\tools\nunit3-console.exe"" ""-targetargs:{testDllPath} --noresult"" ""-output:build\coverage\coverage.xml"" -skipautoprops -returntargetcode ""-filter:+[Faithlife*]*""");
+			ExecuteProcess(@"cake\OpenCover\tools\OpenCover.Console.exe",
+				$@"-register:user -mergeoutput ""-target:cake\NUnit.ConsoleRunner\tools\nunit3-console.exe"" ""-targetargs:{testDllPath} --noresult"" ""-output:release\coverage.xml"" -skipautoprops -returntargetcode" + filter);
 		}
 	});
 
@@ -77,18 +77,15 @@ Task("CoverageReport")
 	.IsDependentOn("Coverage")
 	.Does(() =>
 	{
-		StartProcess(@"tools\ReportGenerator\tools\ReportGenerator.exe", $@"""-reports:build\coverage\coverage.xml"" ""-targetdir:build\coverage\report""");
+		ExecuteProcess(@"cake\ReportGenerator\tools\ReportGenerator.exe", $@"""-reports:release\coverage.xml"" ""-targetdir:release\coverage""");
 	});
 
 Task("CoveragePublish")
 	.IsDependentOn("Coverage")
 	.Does(() =>
 	{
-		if (coverallsApiKey == null)
-			throw new InvalidOperationException("Requires -coverallsApiKey=(key)");
-
 		if (coverallsApiKey.Length != 0)
-			StartProcess(@"tools\coveralls.io\tools\coveralls.net.exe", $@"--opencover ""build\coverage\coverage.xml"" --full-sources --repo-token {coverallsApiKey}");
+			ExecuteProcess(@"cake\coveralls.io\tools\coveralls.net.exe", $@"--opencover ""release\coverage.xml"" --full-sources --repo-token {coverallsApiKey}");
 		else
 			Information("coverallsApiKey is blank; skipping publish.");
 	});
@@ -100,18 +97,18 @@ Task("DotNetBuild")
 		foreach (var dotnetFile in GetFiles("./**/*.dotnet"))
 			System.IO.File.Move(dotnetFile.FullPath, dotnetFile.ChangeExtension(".json").FullPath);
 
-		StartProcess("dotnet", "restore");
+		ExecuteProcess("dotnet", "restore");
 
 		foreach (var projectFile in GetFiles("./**/project.json"))
-			StartProcess("dotnet", $"build \"{projectFile.FullPath}\" --configuration {configuration}");
+			ExecuteProcess("dotnet", $"build \"{projectFile.FullPath}\" --configuration {configuration}");
 	});
 
 Task("DotNetTest")
 	.IsDependentOn("DotNetBuild")
 	.Does(() =>
 	{
-		foreach (var projectFile in GetFiles("./tests/**/project.json"))
-			StartProcess("dotnet", $"test \"{projectFile.FullPath}\" --configuration {configuration} --no-build --noresult");
+		foreach (var projectFile in GetFiles("tests/**/project.json"))
+			ExecuteProcess("dotnet", $"test \"{projectFile.FullPath}\" --configuration {configuration} --no-build --noresult");
 	});
 
 Task("NuGetPackage")
@@ -121,11 +118,11 @@ Task("NuGetPackage")
 		if (configuration != "Release")
 			throw new InvalidOperationException("Configuration should be Release.");
 
-		CreateDirectory("./build/nuget");
-		CleanDirectory("./build/nuget");
+		CreateDirectory("release/nuget");
+		CleanDirectory("release/nuget");
 
 		foreach (var projectFile in GetFiles("./src/**/project.json"))
-			StartProcess("dotnet", $"pack \"{projectFile.FullPath}\" --configuration {configuration} --no-build --output build/nuget");
+			ExecuteProcess("dotnet", $"pack \"{projectFile.FullPath}\" --configuration {configuration} --no-build --output release/nuget");
 	});
 
 Task("NuGetPublish")
@@ -151,7 +148,7 @@ Task("NuGetPublish")
 			throw new InvalidOperationException($"The current commit '{headSha}' must be pushed to GitHub.", exception);
 		}
 
-		var packageFiles = GetFiles("./build/nuget/*.nupkg").Where(x => !x.FullPath.EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase)).ToList();
+		var packageFiles = GetFiles("release/nuget/*.nupkg").Where(x => !x.FullPath.EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase)).ToList();
 		if (packageFiles.Count == 0)
 			throw new InvalidOperationException("No packages found to publish.");
 		var packageVersions = packageFiles.Select(x => x.FullPath.Split('.')).Select(x => $"{x[x.Length - 4]}.{x[x.Length - 3]}.{x[x.Length - 2]}").Distinct().ToList();
@@ -176,7 +173,14 @@ Task("NuGetPublish")
 Task("Default")
 	.Does(() =>
 	{
-		Information("Target required, e.g. -target=Coverage");
+		Information("Target required, e.g. -target=CoverageReport");
 	});
+
+void ExecuteProcess(string exePath, string arguments)
+{
+	int exitCode = StartProcess(exePath, arguments);
+	if (exitCode != 0)
+		throw new InvalidOperationException($"{exePath} failed with exit code {exitCode}.");
+}
 
 RunTarget(target);
