@@ -4,7 +4,7 @@
 
 ## Features
 
-* [BulkInsert](docs/BulkInsert.md)
+* [BulkInsert](BulkInsert.md)
 
 ## Installation
 
