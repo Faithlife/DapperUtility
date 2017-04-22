@@ -1,6 +1,6 @@
 # BulkInsert
 
-The `BulkInsert` (and `BulkInsertAsync`) extension methods allow efficient insertion of many rows into a database table with a familiar Dapper-like API.
+The [`BulkInsert`](Faithlife.Utility.Dapper/BulkInsertUtility/BulkInsert.md) (and [`BulkInsertAsync`](Faithlife.Utility.Dapper/BulkInsertUtility/BulkInsertAsync.md) extension methods allow efficient insertion of many rows into a database table with a familiar Dapper-like API.
 
 ## Problem
 
