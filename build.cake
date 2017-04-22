@@ -1,180 +1,104 @@
-#addin "nuget:https://www.nuget.org/api/v2/?package=Cake.Git&version=0.10.0"
-#addin "nuget:https://www.nuget.org/api/v2/?package=Octokit&version=0.23.0"
-#tool "nuget:https://www.nuget.org/api/v2/?package=coveralls.io&version=1.3.4"
-#tool "nuget:https://www.nuget.org/api/v2/?package=NUnit.ConsoleRunner&version=3.5.0"
-#tool "nuget:https://www.nuget.org/api/v2/?package=OpenCover&version=4.6.519"
-#tool "nuget:https://www.nuget.org/api/v2/?package=ReportGenerator&version=2.5.0"
+#tool "nuget:?package=XmlDocMarkdown&version=0.5.0"
+#tool "nuget:?package=xunit.runner.console&version=2.2.0"
 
-using LibGit2Sharp;
+using System.Text.RegularExpressions;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var nugetApiKey = Argument("nugetApiKey", "");
-var githubApiKey = Argument("githubApiKey", "");
-var coverallsApiKey = Argument("coverallsApiKey", "");
+var trigger = Argument("trigger", "");
 
 var solutionFileName = "DapperUtility.sln";
-var githubOwner = "Faithlife";
-var githubRepo = "DapperUtility";
-var githubRawUri = "http://raw.githubusercontent.com";
-var nugetSource = "https://www.nuget.org/api/v2/package";
-var coverageAssemblies = new[] { "Faithlife.Utility.Dapper" };
-
-var dotnetFileNames = new HashSet<string> { "global.json", "project.json", "project.lock.json" };
-
-var gitRepository = new LibGit2Sharp.Repository(MakeAbsolute(Directory(".")).FullPath);
-
-var githubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("build.cake"));
-if (!string.IsNullOrWhiteSpace(githubApiKey))
-	githubClient.Credentials = new Octokit.Credentials(githubApiKey);
+var nugetSource = "https://api.nuget.org/v3/index.json";
+var docsAssembly = $@"src\Faithlife.Utility.Dapper\bin\{configuration}\net45\Faithlife.Utility.Dapper.dll";
+var docsSourceUri = "https://github.com/Faithlife/DapperUtility/tree/master/src/Faithlife.Utility.Dapper";
 
 Task("Clean")
 	.Does(() =>
 	{
-		CleanDirectories($"src/**/bin");
-		CleanDirectories($"src/**/obj");
-		CleanDirectories($"tests/**/bin");
-		CleanDirectories($"tests/**/obj");
+		CleanDirectories("src/**/bin");
+		CleanDirectories("src/**/obj");
+		CleanDirectories("tests/**/bin");
+		CleanDirectories("tests/**/obj");
 		CleanDirectories("release");
 	});
 
-Task("MSBuild")
+Task("Build")
 	.IsDependentOn("Clean")
 	.Does(() =>
 	{
-		foreach (var dotnetFile in GetFiles("**/*.json").Where(x => dotnetFileNames.Contains(x.Segments.Last())))
-			System.IO.File.Move(dotnetFile.FullPath, dotnetFile.ChangeExtension(".dotnet").FullPath);
-
-		NuGetRestore(solutionFileName);
-		MSBuild(solutionFileName, settings => settings.SetConfiguration(configuration));
+		DotNetCoreRestore(solutionFileName);
+		DotNetCoreBuild(solutionFileName, new DotNetCoreBuildSettings { Configuration = configuration, ArgumentCustomization = args => args.Append("--verbosity normal") });
 	});
 
-Task("MSTest")
-	.IsDependentOn("MSBuild")
+Task("GenerateDocs")
+	.IsDependentOn("Build")
+	.Does(() => GenerateDocs(verify: false));
+
+Task("VerifyGenerateDocs")
+	.IsDependentOn("Build")
+	.Does(() => GenerateDocs(verify: true));
+
+Task("Test")
+	.IsDependentOn("VerifyGenerateDocs")
 	.Does(() =>
 	{
-		NUnit3($"tests/**/bin/**/*.Tests.dll", new NUnit3Settings { NoResults = true });
-	});
-
-Task("Coverage")
-	.IsDependentOn("MSBuild")
-	.Does(() =>
-	{
-		CreateDirectory("release");
-		if (FileExists("release/coverage.xml"))
-			DeleteFile("release/coverage.xml");
-
-		string filter = string.Concat(coverageAssemblies.Select(x => $@" ""-filter:+[{x}]*"""));
-
-		foreach (var testDllPath in GetFiles($"./tests/**/bin/**/*.Tests.dll"))
-		{
-			ExecuteProcess(@"cake\OpenCover\tools\OpenCover.Console.exe",
-				$@"-register:user -mergeoutput ""-target:cake\NUnit.ConsoleRunner\tools\nunit3-console.exe"" ""-targetargs:{testDllPath} --noresult"" ""-output:release\coverage.xml"" -skipautoprops -returntargetcode" + filter);
-		}
-	});
-
-Task("CoverageReport")
-	.IsDependentOn("Coverage")
-	.Does(() =>
-	{
-		ExecuteProcess(@"cake\ReportGenerator\tools\ReportGenerator.exe", $@"""-reports:release\coverage.xml"" ""-targetdir:release\coverage""");
-	});
-
-Task("CoveragePublish")
-	.IsDependentOn("Coverage")
-	.Does(() =>
-	{
-		if (coverallsApiKey.Length != 0)
-			ExecuteProcess(@"cake\coveralls.io\tools\coveralls.net.exe", $@"--opencover ""release\coverage.xml"" --full-sources --repo-token {coverallsApiKey}");
-		else
-			Information("coverallsApiKey is blank; skipping publish.");
-	});
-
-Task("DotNetBuild")
-	.IsDependentOn("Clean")
-	.Does(() =>
-	{
-		foreach (var dotnetFile in GetFiles("./**/*.dotnet"))
-			System.IO.File.Move(dotnetFile.FullPath, dotnetFile.ChangeExtension(".json").FullPath);
-
-		ExecuteProcess("dotnet", "restore");
-
-		foreach (var projectFile in GetFiles("./**/project.json"))
-			ExecuteProcess("dotnet", $"build \"{projectFile.FullPath}\" --configuration {configuration}");
-	});
-
-Task("DotNetTest")
-	.IsDependentOn("DotNetBuild")
-	.Does(() =>
-	{
-		foreach (var projectFile in GetFiles("tests/**/project.json"))
-			ExecuteProcess("dotnet", $"test \"{projectFile.FullPath}\" --configuration {configuration} --no-build --noresult");
+		foreach (var projectPath in GetFiles("tests/**/*.csproj").Select(x => x.FullPath))
+			DotNetCoreTest(projectPath, new DotNetCoreTestSettings { Configuration = configuration });
 	});
 
 Task("NuGetPackage")
-	.IsDependentOn("DotNetTest")
+	.IsDependentOn("Test")
 	.Does(() =>
 	{
-		if (configuration != "Release")
-			throw new InvalidOperationException("Configuration should be Release.");
-
-		CreateDirectory("release/nuget");
-		CleanDirectory("release/nuget");
-
-		foreach (var projectFile in GetFiles("./src/**/project.json"))
-			ExecuteProcess("dotnet", $"pack \"{projectFile.FullPath}\" --configuration {configuration} --no-build --output release/nuget");
+		foreach (var projectPath in GetFiles("src/**/*.csproj").Select(x => x.FullPath))
+			DotNetCorePack(projectPath, new DotNetCorePackSettings { Configuration = configuration, OutputDirectory = "release" });
 	});
 
 Task("NuGetPublish")
 	.IsDependentOn("NuGetPackage")
+	.WithCriteria(() => !string.IsNullOrEmpty(nugetApiKey))
 	.Does(() =>
 	{
-		if (string.IsNullOrWhiteSpace(nugetApiKey))
-			throw new InvalidOperationException("Requires -nugetApiKey=(key)");
-		if (string.IsNullOrWhiteSpace(githubApiKey))
-			throw new InvalidOperationException("Requires -githubApiKey=(key)");
+		var nupkgPaths = GetFiles("release/*.nupkg").Select(x => x.FullPath).ToList();
 
-		var dirtyEntry = gitRepository.RetrieveStatus().FirstOrDefault(x => x.State != FileStatus.Unaltered && x.State != FileStatus.Ignored);
-		if (dirtyEntry != null)
-			throw new InvalidOperationException($"The git working directory must be clean, but '{dirtyEntry.FilePath}' is dirty.");
-
-		var headSha = gitRepository.Head.Tip.Sha;
-		try
+		string version = null;
+		foreach (var nupkgPath in nupkgPaths)
 		{
-			githubClient.Repository.Commit.GetSha1(githubOwner, githubRepo, headSha).GetAwaiter().GetResult();
-		}
-		catch (Octokit.NotFoundException exception)
-		{
-			throw new InvalidOperationException($"The current commit '{headSha}' must be pushed to GitHub.", exception);
+			string nupkgVersion = Regex.Match(nupkgPath, @"\.([^\.]+\.[^\.]+\.[^\.]+)\.nupkg$").Groups[1].ToString();
+			if (version == null)
+				version = nupkgVersion;
+			else if (version != nupkgVersion)
+				throw new InvalidOperationException($"Mismatched package versions '{version}' and '{nupkgVersion}'.");
 		}
 
-		var packageFiles = GetFiles("release/nuget/*.nupkg").Where(x => !x.FullPath.EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase)).ToList();
-		if (packageFiles.Count == 0)
-			throw new InvalidOperationException("No packages found to publish.");
-		var packageVersions = packageFiles.Select(x => x.FullPath.Split('.')).Select(x => $"{x[x.Length - 4]}.{x[x.Length - 3]}.{x[x.Length - 2]}").Distinct().ToList();
-		if (packageVersions.Count != 1)
-			throw new InvalidOperationException($"Multiple package versions found: {string.Join(";", packageVersions)}");
-		var packageVersion = packageVersions[0];
-
-		foreach (var packageFile in packageFiles)
+		if (trigger == null || Regex.IsMatch(trigger, "^v[0-9]"))
 		{
-			NuGetPush(packageFile, new NuGetPushSettings
-			{
-				ApiKey = nugetApiKey,
-				Source = nugetSource,
-			});
-		}
+			if (trigger != null && trigger != $"v{version}")
+				throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
 
-		Information($"Creating git tag '{packageVersion}'...");
-		githubClient.Git.Reference.Create(githubOwner, githubRepo,
-			new Octokit.NewReference($"refs/tags/{packageVersion}", headSha)).GetAwaiter().GetResult();
+			var pushSettings = new NuGetPushSettings { ApiKey = nugetApiKey, Source = nugetSource };
+			foreach (var nupkgPath in nupkgPaths)
+				NuGetPush(nupkgPath, pushSettings);
+		}
+		else
+		{
+			Information("To publish this package, push this git tag: v" + version);
+		}
 	});
 
 Task("Default")
-	.Does(() =>
-	{
-		Information("Target required, e.g. -target=CoverageReport");
-	});
+	.IsDependentOn("Test");
+
+void GenerateDocs(bool verify)
+{
+	int exitCode = StartProcess($@"cake\XmlDocMarkdown\tools\XmlDocMarkdown.exe",
+		$@"{docsAssembly} docs\ --source ""{docsSourceUri}"" --newline lf --clean" + (verify ? " --verify" : ""));
+	if (exitCode == 1 && verify)
+		throw new InvalidOperationException("Generated docs don't match; use -target=GenerateDocs to regenerate.");
+	else if (exitCode != 0)
+		throw new InvalidOperationException($"Docs generation failed with exit code {exitCode}.");
+}
 
 void ExecuteProcess(string exePath, string arguments)
 {

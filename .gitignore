@@ -2,14 +2,13 @@
 bin/
 cake/
 obj/
-packages/
 release/
 
 *.cache
+*.log
 *.ncrunchproject
 *.ncrunchsolution
 *.suo
 *.user
-*.lock.json
-*.lock.dotnet
-TestResult.xml
+
+launchSettings.json
