@@ -9,4 +9,4 @@ before_install:
 
 script:
   - dotnet restore
-  - dotnet test tests/Faithlife.Utility.Dapper.Tests -c Release -f netcoreapp1.1
+  - dotnet test tests/Faithlife.Utility.Dapper.Tests/Faithlife.Utility.Dapper.Tests.csproj -c Release -f netcoreapp1.1
