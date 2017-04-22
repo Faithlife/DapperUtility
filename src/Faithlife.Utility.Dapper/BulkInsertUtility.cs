@@ -16,7 +16,7 @@ namespace Faithlife.Utility.Dapper
 	/// <summary>
 	/// Methods for bulk insert with Dapper.
 	/// </summary>
-	/// <remarks>https://github.com/Faithlife/DapperUtility/blob/master/docs/BulkInsert.md</remarks>
+	/// <remarks>https://faithlife.github.io/DapperUtility/BulkInsert</remarks>
 	public static class BulkInsertUtility
 	{
 		/// <summary>
@@ -209,7 +209,7 @@ namespace Faithlife.Utility.Dapper
 					return null;
 
 				var dynamicGetMethod = new DynamicMethod(name: $"_Get{property.Name}_",
-					returnType: typeof(T), parameterTypes: new Type[] { typeof(object) }, owner: ownerType);
+					returnType: typeof(T), parameterTypes: new[] { typeof(object) }, owner: ownerType);
 				var generator = dynamicGetMethod.GetILGenerator();
 				generator.DeclareLocal(typeof(object));
 				generator.Emit(OpCodes.Ldarg_0);
