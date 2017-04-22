@@ -17,10 +17,6 @@ public static class BulkInsertUtility
 | static [GetBulkInsertCommands&lt;TInsert&gt;](BulkInsertUtility/GetBulkInsertCommands.md)(…) | Gets the Dapper `CommandDefinition`s used by `BulkInsert` and `BulkInsertAsync`. |
 | static [GetBulkInsertCommands&lt;TCommon,TInsert&gt;](BulkInsertUtility/GetBulkInsertCommands.md)(…) | Gets the Dapper `CommandDefinition`s used by `BulkInsert` and `BulkInsertAsync`. |
 
-## Remarks
-
-https://github.com/Faithlife/DapperUtility/blob/master/docs/BulkInsert.md
-
 ## See Also
 
 * namespace [Faithlife.Utility.Dapper](../Faithlife.Utility.Dapper.md)
