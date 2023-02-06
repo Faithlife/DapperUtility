@@ -258,7 +258,7 @@ namespace Faithlife.Utility.Dapper
 		}
 
 		static readonly Regex s_valuesClauseRegex = new Regex(
-			@"\b[vV][aA][lL][uU][eE][sS]\s*(\(.*?\))\s*\.\.\.", RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.RightToLeft);
+			@"\b[vV][aA][lL][uU][eE][sS]\s*(\(.*?\))\s*", RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.RightToLeft);
 
 		static readonly Regex s_parameterRegex = new Regex(@"[@:?]\w+\b", RegexOptions.CultureInvariant);
 	}
