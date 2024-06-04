@@ -1,5 +1,5 @@
 # Release Notes
 
-## 0.1.0
+## 2.0.0
 
-* Initial release.
+* Upgrade to .NET Standard 2.0 and latest Dapper.
