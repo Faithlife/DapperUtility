@@ -1,23 +1,31 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{68EEB72A-6D49-4B06-87C1-B54D028F897F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faithlife.Utility.Dapper", "src\Faithlife.Utility.Dapper\Faithlife.Utility.Dapper.csproj", "{1F75E8CE-F59A-4738-81EC-17B71C125A06}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faithlife.Utility.Dapper.Tests", "tests\Faithlife.Utility.Dapper.Tests\Faithlife.Utility.Dapper.Tests.csproj", "{3506DA15-B470-42E7-B897-D436451CBC32}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "tools\Build\Build.csproj", "{9BB3C85C-100E-4128-A9AF-8F697D753538}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocGen", "tools\XmlDocGen\XmlDocGen.csproj", "{0A5C4B36-610E-4451-BD56-86E5C8A52C42}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A21957E2-3EB8-4CA5-8537-04F60C9F98D5}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		appveyor.yml = appveyor.yml
-		build.cake = build.cake
 		build.ps1 = build.ps1
+		CONTRIBUTING.md = CONTRIBUTING.md
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		global.json = global.json
 		LICENSE = LICENSE
+		nuget.config = nuget.config
 		README.md = README.md
+		ReleaseNotes.md = ReleaseNotes.md
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faithlife.Utility.Dapper", "src\Faithlife.Utility.Dapper\Faithlife.Utility.Dapper.csproj", "{F8160721-2FE9-4516-8A6C-346D40DD06C4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faithlife.Utility.Dapper.Tests", "tests\Faithlife.Utility.Dapper.Tests\Faithlife.Utility.Dapper.Tests.csproj", "{037DA62C-FFCF-4C1B-B8DC-42B75107D1F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,16 +33,27 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F8160721-2FE9-4516-8A6C-346D40DD06C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8160721-2FE9-4516-8A6C-346D40DD06C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8160721-2FE9-4516-8A6C-346D40DD06C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8160721-2FE9-4516-8A6C-346D40DD06C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{037DA62C-FFCF-4C1B-B8DC-42B75107D1F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{037DA62C-FFCF-4C1B-B8DC-42B75107D1F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{037DA62C-FFCF-4C1B-B8DC-42B75107D1F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{037DA62C-FFCF-4C1B-B8DC-42B75107D1F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F75E8CE-F59A-4738-81EC-17B71C125A06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F75E8CE-F59A-4738-81EC-17B71C125A06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F75E8CE-F59A-4738-81EC-17B71C125A06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F75E8CE-F59A-4738-81EC-17B71C125A06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3506DA15-B470-42E7-B897-D436451CBC32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3506DA15-B470-42E7-B897-D436451CBC32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3506DA15-B470-42E7-B897-D436451CBC32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3506DA15-B470-42E7-B897-D436451CBC32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BB3C85C-100E-4128-A9AF-8F697D753538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BB3C85C-100E-4128-A9AF-8F697D753538}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BB3C85C-100E-4128-A9AF-8F697D753538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BB3C85C-100E-4128-A9AF-8F697D753538}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A5C4B36-610E-4451-BD56-86E5C8A52C42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A5C4B36-610E-4451-BD56-86E5C8A52C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A5C4B36-610E-4451-BD56-86E5C8A52C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A5C4B36-610E-4451-BD56-86E5C8A52C42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {28CD7BF1-0965-4088-8597-4C08C20C814C}
 	EndGlobalSection
 EndGlobal

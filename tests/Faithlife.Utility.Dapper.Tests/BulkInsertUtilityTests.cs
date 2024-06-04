@@ -1,5 +1,3 @@
-﻿using System;
-using System.Linq;
 using Dapper;
 using FluentAssertions;
 using Xunit;
@@ -169,7 +167,7 @@ namespace Faithlife.Utility.Dapper.Tests
 		[Fact]
 		public void NothingToInsert()
 		{
-			var commands = BulkInsertUtility.GetBulkInsertCommands("VALUES(@foo)...", new object[0]).ToList();
+			var commands = BulkInsertUtility.GetBulkInsertCommands("VALUES(@foo)...", Array.Empty<object>()).ToList();
 			commands.Count.Should().Be(0);
 		}
 

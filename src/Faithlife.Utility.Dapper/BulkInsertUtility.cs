@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Dapper;
 
 namespace Faithlife.Utility.Dapper
@@ -183,7 +178,9 @@ namespace Faithlife.Utility.Dapper
 				return values;
 			}
 
+#pragma warning disable CA1810
 			static ParamExtractor()
+#pragma warning restore CA1810
 			{
 				var names = new List<string>();
 				var getters = new List<Func<T, object>>();
@@ -196,8 +193,8 @@ namespace Faithlife.Utility.Dapper
 						getters.Add(getter);
 					}
 				}
-				s_names = names.ToArray();
-				s_getters = getters.ToArray();
+				s_names = [.. names];
+				s_getters = [.. getters];
 			}
 
 			private static Func<T, object> TryCreateGetter(PropertyInfo property)
@@ -208,7 +205,7 @@ namespace Faithlife.Utility.Dapper
 					return null;
 
 				var dynamicGetMethod = new DynamicMethod(name: $"_Get{property.Name}_",
-					returnType: typeof(T), parameterTypes: new[] { typeof(object) }, owner: ownerType);
+					returnType: typeof(T), parameterTypes: [typeof(object)], owner: ownerType);
 				var generator = dynamicGetMethod.GetILGenerator();
 				generator.DeclareLocal(typeof(object));
 				generator.Emit(OpCodes.Ldarg_0);
@@ -221,8 +218,8 @@ namespace Faithlife.Utility.Dapper
 				return (Func<T, object>) dynamicGetMethod.CreateDelegate(typeof(Func<T, object>));
 			}
 
-			static readonly string[] s_names;
-			static readonly Func<T, object>[] s_getters;
+			private static readonly string[] s_names;
+			private static readonly Func<T, object>[] s_getters;
 		}
 
 		private static IEnumerable<IReadOnlyList<T>> EnumerateBatches<T>(IEnumerable<T> items, int batchSize)
@@ -232,7 +229,7 @@ namespace Faithlife.Utility.Dapper
 			{
 				int count = itemsAsList.Count;
 				if (count <= batchSize)
-					return count != 0 ? new[] { itemsAsList } : Enumerable.Empty<IReadOnlyList<T>>();
+					return count != 0 ? [itemsAsList] : [];
 			}
 
 			return YieldBatches(items, batchSize);
@@ -257,9 +254,9 @@ namespace Faithlife.Utility.Dapper
 				yield return batch;
 		}
 
-		static readonly Regex s_valuesClauseRegex = new Regex(
+		private static readonly Regex s_valuesClauseRegex = new Regex(
 			@"\b[vV][aA][lL][uU][eE][sS]\s*(\(.*?\))\s*\.\.\.", RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.RightToLeft);
 
-		static readonly Regex s_parameterRegex = new Regex(@"[@:?]\w+\b", RegexOptions.CultureInvariant);
+		private static readonly Regex s_parameterRegex = new Regex(@"[@:?]\w+\b", RegexOptions.CultureInvariant);
 	}
 }

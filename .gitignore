@@ -1,6 +1,7 @@
 .vs/
+.idea/
+artifacts/
 bin/
-cake/
 obj/
 release/
 
@@ -8,7 +9,8 @@ release/
 *.log
 *.ncrunchproject
 *.ncrunchsolution
-*.suo
 *.user
-
 launchSettings.json
+nCrunchTemp*
+_ReSharper*
+.DS_Store
