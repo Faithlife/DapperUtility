@@ -1,7 +1,11 @@
-# ProjectName
+# Faithlife.Utility.Dapper
 
-[![NuGet](https://img.shields.io/nuget/v/ProjectName.svg)](https://www.nuget.org/packages/ProjectName)
+**Faithlife.Utility.Dapper** is a utility library for Dapper.
 
-## Usage
+## Features
 
-See the [reference documentation](ProjectName.md).
+* [BulkInsert](BulkInsert.md)
+
+## Installation
+
+Faithlife.Utility.Dapper should be installed [via NuGet](https://www.nuget.org/packages/Faithlife.Utility.Dapper).

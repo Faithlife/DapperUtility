@@ -23,13 +23,8 @@ body {
   font-size: 125%;
 }
 
-.navbar-logo {
+.github-logo {
   height: 24px;
-}
-
-.faithlife-logo {
-  height: 28px;
-  margin: -2px;
 }
 
 .page-container {
