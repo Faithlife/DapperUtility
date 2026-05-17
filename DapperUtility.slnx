@@ -1,4 +1,5 @@
 <Solution>
+  <!-- dotnet-solution-items: *; .github/*; .github/workflows/* -->
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
@@ -13,8 +14,13 @@
     <File Path="README.md" />
     <File Path="ReleaseNotes.md" />
   </Folder>
+  <Folder Name="/Solution Items/.github/">
+    <File Path=".github/conventions.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+  </Folder>
   <Project Path="src/Faithlife.Utility.Dapper/Faithlife.Utility.Dapper.csproj" />
   <Project Path="tests/Faithlife.Utility.Dapper.Tests/Faithlife.Utility.Dapper.Tests.csproj" />
   <Project Path="tools/Build/Build.csproj" />
-  <Project Path="tools/XmlDocGen/XmlDocGen.csproj" />
 </Solution>
