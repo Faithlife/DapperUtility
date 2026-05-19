@@ -1,1 +1,6 @@
 * text=auto eol=lf
+
+# DO NOT EDIT: csharp convention
+# generated from https://github.com/Faithlife/CodingGuidelines/blob/master/sections/csharp/gitattributes.md
+*.cs text diff=csharp
+# END DO NOT EDIT
