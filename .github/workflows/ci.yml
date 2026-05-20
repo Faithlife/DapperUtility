@@ -84,5 +84,6 @@ jobs:
         user: bgrainger
     - name: Publish
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
       run: .\build.ps1 publish --skip package --trigger publish-nuget-output
