@@ -30,9 +30,9 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - name: Check out code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Install .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
     - name: Restore
       run: .\build.ps1 restore
     - name: Build
@@ -43,7 +43,7 @@ jobs:
       run: .\build.ps1 package --skip test
     - name: Upload packages
       if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: nuget-packages
         path: release/*.nupkg
@@ -69,11 +69,11 @@ jobs:
     if: github.repository_owner == 'Faithlife' && github.ref == 'refs/heads/master'
     steps:
     - name: Check out code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Install .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
     - name: Download packages
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: nuget-packages
         path: release
