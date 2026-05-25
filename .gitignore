@@ -1,9 +1,3 @@
-
-*.ncrunchproject
-*.ncrunchsolution
-launchSettings.json
-nCrunchTemp*
-
 # DO NOT EDIT: gitignore-common convention
 .DS_Store
 Thumbs.db
