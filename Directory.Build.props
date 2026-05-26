@@ -8,7 +8,7 @@
     <RepositoryName>DapperUtility</RepositoryName>
   </PropertyGroup>
 
-  <!-- DO NOT EDIT: faithlife-dotnet-library-props convention -->
+  <!-- DO NOT EDIT: dotnet-common-props convention -->
   <PropertyGroup>
     <LangVersion>14.0</LangVersion>
     <Nullable>enable</Nullable>

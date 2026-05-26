@@ -1,5 +1,5 @@
 <Project>
-  <!-- DO NOT EDIT: faithlife-dotnet-library-props/properties convention -->
+  <!-- DO NOT EDIT: dotnet-common-props/properties convention -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
@@ -14,7 +14,7 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.1" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
   </ItemGroup>
-  <!-- DO NOT EDIT: faithlife-dotnet-library-props/analyzers convention -->
+  <!-- DO NOT EDIT: dotnet-common-props/analyzers convention -->
   <ItemGroup>
     <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.*" />
     <GlobalPackageReference Include="NUnit.Analyzers" Version="4.*" />
