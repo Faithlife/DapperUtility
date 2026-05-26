@@ -1,7 +1,11 @@
 <Project>
+  <!-- DO NOT EDIT: faithlife-dotnet-library-props/properties convention -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
   </PropertyGroup>
+  <!-- END DO NOT EDIT -->
   <ItemGroup>
     <PackageVersion Include="Dapper" Version="2.1.35" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
@@ -10,9 +14,11 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.1" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
   </ItemGroup>
+  <!-- DO NOT EDIT: faithlife-dotnet-library-props/analyzers convention -->
   <ItemGroup>
-    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.5.0" />
-    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.2.0" />
-    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.*" />
+    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.*" />
+    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.*-*" />
   </ItemGroup>
+  <!-- END DO NOT EDIT -->
 </Project>

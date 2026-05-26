@@ -11,7 +11,7 @@ namespace Faithlife.Utility.Dapper.Tests
 		{
 			Assert.Throws<ArgumentNullException>(() =>
 			{
-				BulkInsertUtility.GetBulkInsertCommands(null, new[] { new { foo = 1 } });
+				BulkInsertUtility.GetBulkInsertCommands(null!, new[] { new { foo = 1 } });
 			});
 		}
 
@@ -29,7 +29,7 @@ namespace Faithlife.Utility.Dapper.Tests
 		{
 			Assert.Throws<ArgumentNullException>(() =>
 			{
-				BulkInsertUtility.GetBulkInsertCommands("VALUES (@foo)...", default(object[]));
+				BulkInsertUtility.GetBulkInsertCommands("VALUES (@foo)...", default(object[])!);
 			});
 		}
 
@@ -84,7 +84,7 @@ namespace Faithlife.Utility.Dapper.Tests
 			var commands = BulkInsertUtility.GetBulkInsertCommands("INSERT INTO t (foo)VALUES(@foo)...;", new[] { new { foo = 1 } }).ToList();
 			commands.Count.Should().Be(1);
 			commands[0].CommandText.Should().Be("INSERT INTO t (foo)VALUES(@foo_0);");
-			var parameters = (DynamicParameters) commands[0].Parameters;
+			var parameters = (DynamicParameters) commands[0].Parameters!;
 			parameters.ParameterNames.Single().Should().Be("foo_0");
 			((SqlMapper.IParameterLookup) parameters)["foo_0"].Should().Be(1);
 		}
@@ -112,7 +112,7 @@ namespace Faithlife.Utility.Dapper.Tests
 			var commands = BulkInsertUtility.GetBulkInsertCommands("VALUES (@a, @b, @c, @d)...", new { a = 1, b = 2 }, new[] { new { c = 3, d = 4 }, new { c = 5, d = 6 } }).ToList();
 			commands.Count.Should().Be(1);
 			commands[0].CommandText.Should().Be("VALUES (@a, @b, @c_0, @d_0),(@a, @b, @c_1, @d_1)");
-			var parameters = (SqlMapper.IParameterLookup) commands[0].Parameters;
+			var parameters = (SqlMapper.IParameterLookup) commands[0].Parameters!;
 			parameters["a"].Should().Be(1);
 			parameters["b"].Should().Be(2);
 			parameters["c_0"].Should().Be(3);
@@ -129,7 +129,7 @@ namespace Faithlife.Utility.Dapper.Tests
 			commands[0].CommandText.Should().Be("VALUES(@foo_0),(@foo_1),(@foo_2)");
 			commands[1].CommandText.Should().Be("VALUES(@foo_0),(@foo_1),(@foo_2)");
 			commands[2].CommandText.Should().Be("VALUES(@foo_0),(@foo_1)");
-			((SqlMapper.IParameterLookup) commands[2].Parameters)["foo_1"].Should().Be(7);
+			((SqlMapper.IParameterLookup) commands[2].Parameters!)["foo_1"].Should().Be(7);
 		}
 
 		[Fact]
@@ -177,7 +177,7 @@ namespace Faithlife.Utility.Dapper.Tests
 			var commands = BulkInsertUtility.GetBulkInsertCommands("VALUES (@a, @b, @c, @d)...", new { e = 1, f = 2 }, new[] { new { g = 3, h = 4 }, new { g = 5, h = 6 } }).ToList();
 			commands.Count.Should().Be(1);
 			commands[0].CommandText.Should().Be("VALUES (@a, @b, @c, @d),(@a, @b, @c, @d)");
-			var parameters = (SqlMapper.IParameterLookup) commands[0].Parameters;
+			var parameters = (SqlMapper.IParameterLookup) commands[0].Parameters!;
 			parameters["e"].Should().Be(1);
 			parameters["f"].Should().Be(2);
 			parameters["g_0"].Should().Be(3);
@@ -192,7 +192,7 @@ namespace Faithlife.Utility.Dapper.Tests
 			var commands = BulkInsertUtility.GetBulkInsertCommands("VALUES (@a + (@d * @c) -\r\n\t@d)...", new { a = 1, b = 2 }, new[] { new { c = 3, d = 4 }, new { c = 5, d = 6 } }).ToList();
 			commands.Count.Should().Be(1);
 			commands[0].CommandText.Should().Be("VALUES (@a + (@d_0 * @c_0) -\r\n\t@d_0),(@a + (@d_1 * @c_1) -\r\n\t@d_1)");
-			var parameters = (SqlMapper.IParameterLookup) commands[0].Parameters;
+			var parameters = (SqlMapper.IParameterLookup) commands[0].Parameters!;
 			parameters["a"].Should().Be(1);
 			parameters["b"].Should().Be(2);
 			parameters["c_0"].Should().Be(3);

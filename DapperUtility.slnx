@@ -16,9 +16,11 @@
   </Folder>
   <Folder Name="/Solution Items/.github/">
     <File Path=".github/conventions.yml" />
+    <File Path=".github/lsp.json" />
   </Folder>
   <Folder Name="/Solution Items/.github/workflows/">
     <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/copilot-setup-steps.yml" />
   </Folder>
   <Project Path="src/Faithlife.Utility.Dapper/Faithlife.Utility.Dapper.csproj" />
   <Project Path="tests/Faithlife.Utility.Dapper.Tests/Faithlife.Utility.Dapper.Tests.csproj" />

@@ -16,15 +16,15 @@ namespace Faithlife.Utility.Dapper
 		/// <summary>
 		/// Efficiently inserts multiple rows, in batches as necessary.
 		/// </summary>
-		public static int BulkInsert<TInsert>(this IDbConnection connection, string sql, IEnumerable<TInsert> insertParams, IDbTransaction transaction = null, int? batchSize = null)
+		public static int BulkInsert<TInsert>(this IDbConnection connection, string sql, IEnumerable<TInsert> insertParams, IDbTransaction? transaction = null, int? batchSize = null)
 		{
-			return connection.BulkInsert(sql, (object) null, insertParams, transaction, batchSize);
+			return connection.BulkInsert(sql, (object?) null, insertParams, transaction, batchSize);
 		}
 
 		/// <summary>
 		/// Efficiently inserts multiple rows, in batches as necessary.
 		/// </summary>
-		public static int BulkInsert<TCommon, TInsert>(this IDbConnection connection, string sql, TCommon commonParam, IEnumerable<TInsert> insertParams, IDbTransaction transaction = null, int? batchSize = null)
+		public static int BulkInsert<TCommon, TInsert>(this IDbConnection connection, string sql, TCommon? commonParam, IEnumerable<TInsert> insertParams, IDbTransaction? transaction = null, int? batchSize = null)
 		{
 			int rowCount = 0;
 			foreach (var commandDefinition in GetBulkInsertCommands(sql, commonParam, insertParams, transaction, batchSize))
@@ -35,15 +35,15 @@ namespace Faithlife.Utility.Dapper
 		/// <summary>
 		/// Efficiently inserts multiple rows, in batches as necessary.
 		/// </summary>
-		public static Task<int> BulkInsertAsync<TInsert>(this IDbConnection connection, string sql, IEnumerable<TInsert> insertParams, IDbTransaction transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
+		public static Task<int> BulkInsertAsync<TInsert>(this IDbConnection connection, string sql, IEnumerable<TInsert> insertParams, IDbTransaction? transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return connection.BulkInsertAsync(sql, (object) null, insertParams, transaction, batchSize, cancellationToken);
+			return connection.BulkInsertAsync(sql, (object?) null, insertParams, transaction, batchSize, cancellationToken);
 		}
 
 		/// <summary>
 		/// Efficiently inserts multiple rows, in batches as necessary.
 		/// </summary>
-		public static async Task<int> BulkInsertAsync<TCommon, TInsert>(this IDbConnection connection, string sql, TCommon commonParam, IEnumerable<TInsert> insertParams, IDbTransaction transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
+		public static async Task<int> BulkInsertAsync<TCommon, TInsert>(this IDbConnection connection, string sql, TCommon? commonParam, IEnumerable<TInsert> insertParams, IDbTransaction? transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			int rowCount = 0;
 			foreach (var commandDefinition in GetBulkInsertCommands(sql, commonParam, insertParams, transaction, batchSize, cancellationToken))
@@ -54,15 +54,15 @@ namespace Faithlife.Utility.Dapper
 		/// <summary>
 		/// Gets the Dapper <c>CommandDefinition</c>s used by <c>BulkInsert</c> and <c>BulkInsertAsync</c>.
 		/// </summary>
-		public static IEnumerable<CommandDefinition> GetBulkInsertCommands<TInsert>(string sql, IEnumerable<TInsert> insertParams, IDbTransaction transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
+		public static IEnumerable<CommandDefinition> GetBulkInsertCommands<TInsert>(string sql, IEnumerable<TInsert> insertParams, IDbTransaction? transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return GetBulkInsertCommands(sql, (object) null, insertParams, transaction, batchSize, cancellationToken);
+			return GetBulkInsertCommands(sql, (object?) null, insertParams, transaction, batchSize, cancellationToken);
 		}
 
 		/// <summary>
 		/// Gets the Dapper <c>CommandDefinition</c>s used by <c>BulkInsert</c> and <c>BulkInsertAsync</c>.
 		/// </summary>
-		public static IEnumerable<CommandDefinition> GetBulkInsertCommands<TCommon, TInsert>(string sql, TCommon commonParam, IEnumerable<TInsert> insertParams, IDbTransaction transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
+		public static IEnumerable<CommandDefinition> GetBulkInsertCommands<TCommon, TInsert>(string sql, TCommon? commonParam, IEnumerable<TInsert> insertParams, IDbTransaction? transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (sql == null)
 				throw new ArgumentNullException(nameof(sql));
@@ -81,7 +81,7 @@ namespace Faithlife.Utility.Dapper
 			return YieldBulkInsertCommands(valuesClauseMatches[0], sql, commonParam, insertParams, transaction, batchSize, cancellationToken);
 		}
 
-		private static IEnumerable<CommandDefinition> YieldBulkInsertCommands<TCommon, TInsert>(Match valuesClauseMatch, string sql, TCommon commonParam, IEnumerable<TInsert> insertParams, IDbTransaction transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
+		private static IEnumerable<CommandDefinition> YieldBulkInsertCommands<TCommon, TInsert>(Match valuesClauseMatch, string sql, TCommon? commonParam, IEnumerable<TInsert> insertParams, IDbTransaction? transaction = null, int? batchSize = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			// identify SQL parts
 			Group tupleMatch = valuesClauseMatch.Groups[1];
@@ -91,7 +91,7 @@ namespace Faithlife.Utility.Dapper
 
 			// get common names and values
 			string[] commonNames = ParamExtractor<TCommon>.GetNames();
-			object[] commonValues = ParamExtractor<TCommon>.GetValues(commonParam);
+			object?[] commonValues = ParamExtractor<TCommon>.GetValues(commonParam);
 
 			// get insert names and find insert parameters in tuple
 			string[] insertNames = ParamExtractor<TInsert>.GetNames();
@@ -106,9 +106,9 @@ namespace Faithlife.Utility.Dapper
 				Math.Max(1, (maxParamsPerBatch - commonNames.Length) / Math.Max(1, insertNames.Length));
 
 			// insert one batch at a time
-			string batchSql = null;
+			string? batchSql = null;
 			int lastBatchCount = 0;
-			StringBuilder batchSqlBuilder = null;
+			StringBuilder? batchSqlBuilder = null;
 			foreach (var insertParamBatch in EnumerateBatches(insertParams, actualBatchSize))
 			{
 				// build the SQL for the batch
@@ -167,9 +167,9 @@ namespace Faithlife.Utility.Dapper
 		{
 			public static string[] GetNames() => s_names;
 
-			public static object[] GetValues(T param)
+			public static object?[] GetValues(T? param)
 			{
-				var values = new object[s_getters.Length];
+				var values = new object?[s_getters.Length];
 				if (param != null)
 				{
 					for (int index = 0; index < values.Length; index++)
@@ -183,7 +183,7 @@ namespace Faithlife.Utility.Dapper
 #pragma warning restore CA1810
 			{
 				var names = new List<string>();
-				var getters = new List<Func<T, object>>();
+				var getters = new List<Func<T, object?>>();
 				foreach (var property in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public))
 				{
 					var getter = TryCreateGetter(property);
@@ -197,7 +197,7 @@ namespace Faithlife.Utility.Dapper
 				s_getters = [.. getters];
 			}
 
-			private static Func<T, object> TryCreateGetter(PropertyInfo property)
+			private static Func<T, object?>? TryCreateGetter(PropertyInfo property)
 			{
 				var getMethod = property.GetGetMethod();
 				var ownerType = property.DeclaringType;
@@ -215,11 +215,11 @@ namespace Faithlife.Utility.Dapper
 					generator.Emit(OpCodes.Box, property.PropertyType);
 				generator.Emit(OpCodes.Ret);
 
-				return (Func<T, object>) dynamicGetMethod.CreateDelegate(typeof(Func<T, object>));
+				return (Func<T, object?>) dynamicGetMethod.CreateDelegate(typeof(Func<T, object?>));
 			}
 
 			private static readonly string[] s_names;
-			private static readonly Func<T, object>[] s_getters;
+			private static readonly Func<T, object?>[] s_getters;
 		}
 
 		private static IEnumerable<IReadOnlyList<T>> EnumerateBatches<T>(IEnumerable<T> items, int batchSize)
