@@ -1,27 +1,4 @@
 <Solution>
-  <!-- dotnet-solution-items: *; .github/*; .github/workflows/* -->
-  <Folder Name="/Solution Items/">
-    <File Path=".editorconfig" />
-    <File Path=".gitattributes" />
-    <File Path=".gitignore" />
-    <File Path="build.ps1" />
-    <File Path="CONTRIBUTING.md" />
-    <File Path="Directory.Build.props" />
-    <File Path="Directory.Packages.props" />
-    <File Path="global.json" />
-    <File Path="LICENSE" />
-    <File Path="nuget.config" />
-    <File Path="README.md" />
-    <File Path="ReleaseNotes.md" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/">
-    <File Path=".github/conventions.yml" />
-    <File Path=".github/lsp.json" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/workflows/">
-    <File Path=".github/workflows/ci.yml" />
-    <File Path=".github/workflows/copilot-setup-steps.yml" />
-  </Folder>
   <Project Path="src/Faithlife.Utility.Dapper/Faithlife.Utility.Dapper.csproj" />
   <Project Path="tests/Faithlife.Utility.Dapper.Tests/Faithlife.Utility.Dapper.Tests.csproj" />
   <Project Path="tools/Build/Build.csproj" />
