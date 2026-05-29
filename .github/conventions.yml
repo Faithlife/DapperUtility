@@ -1,6 +1,11 @@
 # applied automatically by https://github.com/Faithlife/RepoConventionsApplier (DO NOT REMOVE THIS LINE)
 conventions:
   - path: Faithlife/CodingGuidelines/conventions/faithlife-dotnet-library
+  - path: Faithlife/CodingGuidelines/conventions/update-nuget-packages
+    settings:
+      rules:
+        - packages: [FluentAssertions]
+          version: "[,8)"
 
 pull-request:
   reviewers:
