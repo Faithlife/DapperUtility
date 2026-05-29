@@ -17,11 +17,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NeutralLanguage>en-US</NeutralLanguage>
     <DebugType>embedded</DebugType>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/$(GitHubOrganization)/$(RepositoryName)</PackageProjectUrl>
-    <PackageReleaseNotes>https://github.com/$(GitHubOrganization)/$(RepositoryName)/blob/master/ReleaseNotes.md</PackageReleaseNotes>
+    <PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/$(GitHubOrganization)/$(RepositoryName)</PackageProjectUrl>
+    <PackageReleaseNotes Condition=" '$(PackageReleaseNotes)' == '' ">https://github.com/$(GitHubOrganization)/$(RepositoryName)/blob/master/ReleaseNotes.md</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/$(GitHubOrganization)/$(RepositoryName).git</RepositoryUrl>
-    <Authors>Faithlife</Authors>
+    <Authors Condition=" '$(Authors)' == '' ">$(GitHubOrganization)</Authors>
     <Copyright>Copyright $(Authors)</Copyright>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest-all</AnalysisLevel>
