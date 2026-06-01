@@ -34,13 +34,13 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@v5
     - name: Restore
-      run: .\build.ps1 restore
+      run: ./build.ps1 restore
     - name: Build
-      run: .\build.ps1 build --skip restore
+      run: ./build.ps1 build --skip restore
     - name: Test
-      run: .\build.ps1 test --skip build
+      run: ./build.ps1 test --skip build
     - name: Package
-      run: .\build.ps1 package --skip test
+      run: ./build.ps1 package --skip test
     - name: Upload packages
       if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v7
@@ -86,4 +86,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
-      run: .\build.ps1 publish --skip package --trigger publish-nuget-output
+      run: ./build.ps1 publish --skip package --trigger publish-nuget-output
