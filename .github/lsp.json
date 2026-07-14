@@ -3,17 +3,20 @@
     "csharp": {
       "command": "dnx",
       "args": [
+        "roslyn-language-server",
         "--yes",
         "--prerelease",
-        "roslyn-language-server",
         "--",
         "--stdio",
         "--autoLoadProjects"
       ],
+      "cwd": "${PLUGIN_ROOT}",
       "fileExtensions": {
         ".cs": "csharp",
-        ".cshtml": "csharp"
-      }
+        ".razor": "aspnetcorerazor",
+        ".cshtml": "aspnetcorerazor"
+      },
+      "warmupTimeoutMs": 120000
     }
   }
 }
