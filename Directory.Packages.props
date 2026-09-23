@@ -7,9 +7,9 @@
   </PropertyGroup>
   <!-- END DO NOT EDIT -->
   <ItemGroup>
-    <PackageVersion Include="Dapper" Version="2.1.79" />
+    <PackageVersion Include="Dapper" Version="2.1.86" />
     <PackageVersion Include="FluentAssertions" Version="7.2.2" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
