@@ -81,7 +81,7 @@ jobs:
       uses: NuGet/login@v1
       id: nuget-login
       with:
-        user: bgrainger
+        user: LogosPackages
     - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
